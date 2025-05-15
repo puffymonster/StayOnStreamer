@@ -32,6 +32,7 @@ For afk channel points farm when streamer goes live or keeping offline chat logs
 
 After installation, open the browser dev console on Twitch and use:
 
+```js
 stayonstreamer.add('name')     // Add a channel (auto-lowercased)
 stayonstreamer.remove('name')  // Remove a channel
 stayonstreamer.list()          // See current watched channels
