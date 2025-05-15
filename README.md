@@ -12,8 +12,6 @@ For afk channel points farm when streamer goes live or keeping offline chat logs
 -  Persistent channel list stored in your browser
 -  Built-in debug tools and easy management via the browser console
 
----
-
 ## How It Works
 
 - The script only activates on channels **you choose**
