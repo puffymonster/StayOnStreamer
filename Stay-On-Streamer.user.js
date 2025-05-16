@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Stay on Streamer v3.475
+// @name         Stay on Streamer v3.476
 // @namespace    http://tampermonkey.net/
-// @version      3.475
+// @version      3.476
 // @description  Auto-normalises Twitch offline view, prevents channel roulette, expands stream when live, returns after raids,  adds a draggable overlay.
 // @match        https://www.twitch.tv/*
 // @grant        none
@@ -316,6 +316,18 @@
                         logWithColoredBools('2nd click → restore full stream');
                         t2.click();
                         reclicked = true;
+                        waitFrames(1500, () => {
+                            const vid = document.querySelector('video');
+                            if (!reclicked && (!vid || vid.offsetHeight < 100)) {
+                                logWithColoredBools('⚠️ Live failsafe: banner view detected, clicking title again');
+                                waitFor(TITLE, (t3) => {
+                                    if (t3.textContent.trim().toLowerCase() === CH) {
+                                        t3.click();
+                                        logWithColoredBools('✅ Live failsafe: restored full stream view');
+                                    }
+                                });
+                            }
+                        });
                     }
                 });
             }
@@ -326,14 +338,8 @@
                     const liveNow = !!document.querySelector(BADGE);
                     // If stream goes live, auto-expand view
                     if (!wasLive && liveNow && !reclicked) {
-                        logWithColoredBools('Stream went LIVE – clicking title');
-                        waitFor(TITLE, (t3) => {
-                            if (t3.textContent.trim().toLowerCase() === CH) {
-                                t3.click();
-                                reclicked = true;
-                                logWithColoredBools('Clicked after go-live ✓');
-                            }
-                        });
+                        logWithColoredBools('Stream went LIVE – skipping click to avoid banner view');
+                        reclicked = true;
                     }
                     wasLive = liveNow;
                     if (!liveNow) showStatusOverlay();
@@ -347,7 +353,7 @@
     // Periodically check if redirected by a raid/auto-host and return to base
     setInterval(() => {
         const ok = ['', '/', '/chat', '/videos', '/about', '/schedule']
-            .some(s => location.href.startsWith(`${BASE}${s}`));
+        .some(s => location.href.startsWith(`${BASE}${s}`));
         if (!ok) {
             logWithColoredBools('Raid detected → returning + cooldown');
             location.href = BASE;
